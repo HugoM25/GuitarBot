@@ -35,20 +35,20 @@ def main() :
             pass
         else:
             print("Cursor found at pos : " + str(positionCursor))
+            cv2.imwrite("Temp\\tab" + str(i) + ".jpg", listImages[i])
             finalNoteListe.append(GB_NoteReading.GetNoteImagesLobe(im, model, positionCursor, 11, i, fps, humanHelp=False))
         lastPositionCursor = positionCursor
 
-    GB_NoteReading.WriteNotesInFile(finalNoteListe)
     GB_NoteReading.WriteNotesInFileJson("FileOutput.json", finalNoteListe)
 
     print("Analyze of the video done. Proceeding to create the video :")
     #Generates a video from the notes---------------------------------------------
     AudioSegment.converter = r"D:\Projet_Python\ffmpeg\bin\ffmpeg.exe"
-    ListeNotes = GB_VideoGenerator.readTextFile("MySong.txt")
+    ListeNotes = GB_VideoGenerator.readJsonSongFile("FileOutput.json")
     print("Creation of the soundtrack in progress")
     GB_VideoGenerator.CreateSongT2(ListeNotes)
     print("Creation of the visuals in progress")
-    GB_VideoGenerator.CreateVidOpenCv2(ListeNotes, seconds=2 * 60 + 20, fps=30)
+    GB_VideoGenerator.CreateVidOpenCv2(ListeNotes, fps=30)
     print("Final editing started")
     GB_VideoGenerator.CompileSoundandAudio("project.mp4", "SongresultTest.wav")
 

@@ -17,10 +17,6 @@ def ExtractTabImagesFromVideo(PathToVideo) :
         if ret:
             frame = frame[137:223, 0:639]
             ListImagesTab.append(frame)
-
-            #Write the frame (for debugging purposes)
-            #cv2.imwrite("MyFrames\\frame" + str(currentframe) + ".png", frame)
-
             currentframe += 1
         else:
             break

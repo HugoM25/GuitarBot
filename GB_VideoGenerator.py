@@ -56,6 +56,20 @@ def BlankImage(width = 1920, height = 1080, color = (0,0,0)) :
     img = np.zeros((height, width,3), np.uint8)
     return img
 
+def AddTabOverImage(image, tabPath) :
+    #Resize the image
+    tab = cv2.imread(tabPath)
+    newTabWidth = int(image.shape[1])
+    newTabHeight = int(newTabWidth * (tab.shape[0]/tab.shape[1]))
+    resizedTab = cv2.resize(tab, (newTabWidth, newTabHeight), interpolation=cv2.INTER_AREA)
+
+    xOffset = 0
+    yOffset = image.shape[0]-resizedTab.shape[0]
+
+    image[yOffset:yOffset + resizedTab.shape[0], xOffset:xOffset + resizedTab.shape[1]] = resizedTab
+
+    return image
+
 def WriteVideoOpenCv(pathFolderImages, numberofFrames) :
     img_array = []
     size = (1280,720)
@@ -81,7 +95,7 @@ def WriteVideo(pathFolderImages, numberOfFrames, fps=30.0) :
     clip = ImageSequenceClip(image_files, fps=fps)
     clip.write_videofile('project.mp4', codec="libx264", remove_temp= True, fps=fps)
 
-def CreateVidOpenCv2(dataSong, seconds=100, fps=30.0):
+def CreateVidOpenCv2(dataSong, fps=30.0):
 
     current_path = os.getcwd() + "\\"
     frameNum = 0
@@ -103,8 +117,10 @@ def CreateVidOpenCv2(dataSong, seconds=100, fps=30.0):
                 frameNum += 1
         #Add the frames of the note
         pathNote = current_path + "Notes720p\\Fret" + str(dataSong["notes"][noteNum]['corde']) + "\\vid" + str(dataSong["notes"][noteNum]['case'])  + ".mp4"
+
         listImgNote = ExtractImagesFromVideo(pathNote)
         for img in listImgNote:
+            img = AddTabOverImage(img, current_path + "Temp\\" + str(dataSong["notes"][noteNum]['tab']))
             #if there is too much frames then add just enough to reach the notes
             if noteNum + 1 < len(dataSong['notes']) and frameNum < int(fps* float(dataSong['notes'][noteNum+1]['time'])) :
                 cv2.imwrite(current_path + "Temp\\frame" + str(frameNum) + ".jpg", img)
@@ -132,11 +148,11 @@ def CompileSoundandAudio(pathFileVideo, pathFileAudio) :
 def main(formatVid) :
     AudioSegment.converter = r"D:\Projet_Python\ffmpeg\bin\ffmpeg.exe"
     #Read notes from the generated file
-    ListeNotes = readJsonSongFile("FileOutput.json")
-    print(ListeNotes)
-    CreateSongT2(ListeNotes)
-    CreateVidOpenCv2(ListeNotes, seconds=2*60+20, fps=30)
-    CompileSoundandAudio("project.mp4", "SongresultTest.wav")
+    #ListeNotes = readJsonSongFile("FileOutput.json")
+    #print(ListeNotes)
+    #CreateSongT2(ListeNotes)
+    #CreateVidOpenCv2(ListeNotes, fps=30)
+    #CompileSoundandAudio("project.mp4", "SongresultTest.wav")
 
 if __name__ == "__main__" :
     main((1280,720))
