@@ -15,7 +15,7 @@ def main() :
     lastPositionCursor = -2
     errorRangeCursor = 6
     ColorCursor = (150, 235, 152)
-    videoFileName = "Mario Kart Wii - Coconut Mall Guitar Tutorial.mp4"
+    videoFileName = "polish_cow.mp4"
     model = ImageModel.load(currentDir + "\\NoteClassifierV2\\NoteClassifierV4 ONNX")
     video = cv2.VideoCapture(currentDir + "\\Videos\\" + videoFileName)
     fps = video.get(cv2.CAP_PROP_FPS)
@@ -37,12 +37,14 @@ def main() :
             print("Cursor found at pos : " + str(positionCursor))
             finalNoteListe.append(GB_NoteReading.GetNoteImagesLobe(im, model, positionCursor, 11, i, fps, humanHelp=False))
         lastPositionCursor = positionCursor
+
     GB_NoteReading.WriteNotesInFile(finalNoteListe)
+    GB_NoteReading.WriteNotesInFileJson("FileOutput.json", finalNoteListe)
 
     print("Analyze of the video done. Proceeding to create the video :")
     #Generates a video from the notes---------------------------------------------
     AudioSegment.converter = r"D:\Projet_Python\ffmpeg\bin\ffmpeg.exe"
-    ListeNotes = GB_VideoGenerator.readTextFile()
+    ListeNotes = GB_VideoGenerator.readTextFile("MySong.txt")
     print("Creation of the soundtrack in progress")
     GB_VideoGenerator.CreateSongT2(ListeNotes)
     print("Creation of the visuals in progress")

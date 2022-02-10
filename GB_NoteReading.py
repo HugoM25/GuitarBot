@@ -4,6 +4,7 @@ import numpy as np
 import math
 from PIL import Image
 from lobe import ImageModel
+import json
 
 #Extract frames and crop the images to get the tabs
 def ExtractTabImagesFromVideo(PathToVideo) :
@@ -18,7 +19,7 @@ def ExtractTabImagesFromVideo(PathToVideo) :
             ListImagesTab.append(frame)
 
             #Write the frame (for debugging purposes)
-            cv2.imwrite("MyFrames\\frame" + str(currentframe) + ".png", frame)
+            #cv2.imwrite("MyFrames\\frame" + str(currentframe) + ".png", frame)
 
             currentframe += 1
         else:
@@ -113,10 +114,29 @@ def WriteNotesInFile(finalNoteListe) :
             if i[0] != 0 :
                 f.write(str(i[0]) +"," + str(i[1]) +"," + str(i[2])[0:8]+ "," + str(i[3]) +"\n")
 
-if __name__ == "__main__" :
+def WriteNotesInFileJson(filename,notesList) :
+    listNotes = []
+    for note in notesList :
+        if note[0] != 0 :
+            dictNote = {
+                "corde": str(note[0]),
+                "case": str(note[1]),
+                "time": str(note[2])[0:8],
+                "tab": "tab" + str(note[3]) + ".jpg"
+            }
+            listNotes.append(dictNote)
+    data = {
+        "infos": "songName",
+        "notes": listNotes
+    }
+    with open(filename,"w") as outFile :
+       json.dump(data, outFile)
+
+
+def main() :
     currentDir = os.getcwd()
 
-    #Initalize lobe
+    # Initalize lobe
     model = ImageModel.load('D:\\Projet_Python\\GuitarBot_KNN\\NoteClassifierV2\\NoteClassifierV4 ONNX')
     lastPositionCursor = -2
     ColorCursor = (150, 235, 152)
@@ -128,8 +148,7 @@ if __name__ == "__main__" :
 
     listImages = ExtractTabImagesFromVideo(currentDir + "\\Videos\\Spider-Man 2 - Pizza Theme Guitar Tutorial.mp4")
 
-
-    for i in range (0, len(listImages)):
+    for i in range(0, len(listImages)):
         print("Looking at frame number " + str(i))
         im = listImages[i]
         positionCursor = CheckForCursorPos(im, ColorCursor)
@@ -137,16 +156,19 @@ if __name__ == "__main__" :
         if positionCursor == -1:
             print("No cursor was found. Skipping this frame...")
             pass
-        elif positionCursor < lastPositionCursor + errorRangeCursor and positionCursor > lastPositionCursor - errorRangeCursor :
+        elif positionCursor < lastPositionCursor + errorRangeCursor and positionCursor > lastPositionCursor - errorRangeCursor:
             print("Cursor found at the same position. Skipping this frame...")
             pass
         else:
             print("Cursor found at pos : " + str(positionCursor))
-            finalNoteListe.append(GetNoteImagesLobe(im,positionCursor,11,i,fps))
+            finalNoteListe.append(GetNoteImagesLobe(im, positionCursor, 11, i, fps))
 
         lastPositionCursor = positionCursor
 
     print(finalNoteListe)
     WriteNotesInFile(finalNoteListe)
+
+if __name__ == "__main__" :
+    main()
 
 
