@@ -3,7 +3,6 @@ import os
 import numpy as np
 import cv2
 from moviepy.editor import *
-import glob
 from timeit import default_timer as timer
 
 #Return the notes an their timestamp from the file

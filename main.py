@@ -1,6 +1,5 @@
 #Import Some libraries
 from lobe import ImageModel
-import cv2
 from moviepy.editor import *
 from pydub import AudioSegment
 import cv2

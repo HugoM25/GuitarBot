@@ -73,10 +73,6 @@ def GetNoteImagesLobe(imageToLook,model,CursorPosX,dimensionImage,frameNum, fps,
     found = False
     noteListe = [0, 0, 0, 0]
 
-    '''
-    cv2.imshow("OK", imageToLook)
-    cv2.waitKey(0)'''
-
     while i < len(lignesPos) and found == False:
 
         noteImg = imageToLook[lignesPos[i]:lignesPos[i] + dimensionImage,
