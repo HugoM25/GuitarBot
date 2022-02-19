@@ -84,8 +84,8 @@ def GetNoteImagesLobe(imageToLook,model,CursorPosX,dimensionImage,frameNum, fps,
             if humanHelp == True :
                 result = AskHumanForHelp(resultStats, imageToLook)
 
-        print(resultStats)
-        print('Note found is :' + result)
+        #print(resultStats)
+        #print('Note found is :' + result)
         if result != 'Data_nothing':
             chiffre = result[5:]
             image.save("D:\Projet_Python\GuitarBot_KNN\DataTrainModel\Data_"+ str(chiffre) +"\image" + str(frameNum + 30000) +".jpg")
@@ -128,43 +128,34 @@ def WriteNotesInFileJson(filename,notesList) :
     with open(filename,"w") as outFile :
        json.dump(data, outFile)
 
-
-def main() :
-    currentDir = os.getcwd()
-
-    # Initalize lobe
-    model = ImageModel.load('D:\\Projet_Python\\GuitarBot_KNN\\NoteClassifierV2\\NoteClassifierV4 ONNX')
-    lastPositionCursor = -2
-    ColorCursor = (150, 235, 152)
-
-    errorRangeCursor = 6
-    video = cv2.VideoCapture(currentDir + "\\Videos\\Spider-Man 2 - Pizza Theme Guitar Tutorial.mp4")
-    fps = video.get(cv2.CAP_PROP_FPS)
+def ReadNotesFromVideo(videoFilePath, colorCursor, errorRangeCursor, model, fps) :
     finalNoteListe = []
-
-    listImages = ExtractTabImagesFromVideo(currentDir + "\\Videos\\Spider-Man 2 - Pizza Theme Guitar Tutorial.mp4")
-
+    lastPositionCursor = -2
+    listImages = ExtractTabImagesFromVideo(videoFilePath)
     for i in range(0, len(listImages)):
-        print("Looking at frame number " + str(i))
+        #print("looking at frame" + str(i))
         im = listImages[i]
-        positionCursor = CheckForCursorPos(im, ColorCursor)
-
+        positionCursor = CheckForCursorPos(im, colorCursor)
         if positionCursor == -1:
-            print("No cursor was found. Skipping this frame...")
+            #print("No cursor was found. Skipping this frame...")
             pass
         elif positionCursor < lastPositionCursor + errorRangeCursor and positionCursor > lastPositionCursor - errorRangeCursor:
-            print("Cursor found at the same position. Skipping this frame...")
+            #print("Cursor found at the same position. Skipping this frame...")
             pass
         else:
-            print("Cursor found at pos : " + str(positionCursor))
-            finalNoteListe.append(GetNoteImagesLobe(im, positionCursor, 11, i, fps))
-
+            #print("Cursor found at pos : " + str(positionCursor))
+            cv2.imwrite("Temp\\tab" + str(i) + ".jpg", listImages[i])
+            finalNoteListe.append(GetNoteImagesLobe(im, model, positionCursor, 11, i, fps, humanHelp=False))
         lastPositionCursor = positionCursor
 
-    print(finalNoteListe)
-    WriteNotesInFile(finalNoteListe)
+    WriteNotesInFileJson("FileOutput.json", finalNoteListe)
+
+
+
 
 if __name__ == "__main__" :
-    main()
+    pass
+    #ReadNotesFromVideo()
+
 
 

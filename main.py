@@ -3,6 +3,8 @@ from lobe import ImageModel
 from moviepy.editor import *
 from pydub import AudioSegment
 import cv2
+import sys
+import argparse
 
 #Import my libraries
 import GB_NoteReading
@@ -11,45 +13,32 @@ import GB_VideoGenerator
 def main() :
 
     #Set up some variables ---------- ---------------------------------------------
+
     currentDir = os.getcwd()
-    lastPositionCursor = -2
     errorRangeCursor = 6
     ColorCursor = (150, 235, 152)
-    videoFileName = "polish_cow.mp4"
+    videoFilePath = currentDir + "\\Videos\\" + "tabvideo_coffin.mp4"
     model = ImageModel.load(currentDir + "\\NoteClassifierV2\\NoteClassifierV4 ONNX")
-    video = cv2.VideoCapture(currentDir + "\\Videos\\" + videoFileName)
+    video = cv2.VideoCapture(videoFilePath)
     fps = video.get(cv2.CAP_PROP_FPS)
-    finalNoteListe = []
 
-    #Read the notes from a video--------------------------------------------------
-    listImages = GB_NoteReading.ExtractTabImagesFromVideo(currentDir + "\\Videos\\" + videoFileName)
-    for i in range(0, len(listImages)):
-        print("looking at frame" + str(i))
-        im = listImages[i]
-        positionCursor = GB_NoteReading.CheckForCursorPos(im, ColorCursor)
-        if positionCursor == -1:
-            print("No cursor was found. Skipping this frame...")
-            pass
-        elif positionCursor < lastPositionCursor + errorRangeCursor and positionCursor > lastPositionCursor - errorRangeCursor:
-            print("Cursor found at the same position. Skipping this frame...")
-            pass
-        else:
-            print("Cursor found at pos : " + str(positionCursor))
-            cv2.imwrite("Temp\\tab" + str(i) + ".jpg", listImages[i])
-            finalNoteListe.append(GB_NoteReading.GetNoteImagesLobe(im, model, positionCursor, 11, i, fps, humanHelp=False))
-        lastPositionCursor = positionCursor
+    # Parse the arguments
+    parser = argparse.ArgumentParser(description='Informations')
+    parser.add_argument('--videotab', type=str, help="Path of the video to learn from")
+    args = parser.parse_args()
 
-    GB_NoteReading.WriteNotesInFileJson("FileOutput.json", finalNoteListe)
+    videoFilePath = args.videotab
 
+    #Read the notes from the video-------------------------------------------------
+    GB_NoteReading.ReadNotesFromVideo(videoFilePath,ColorCursor, errorRangeCursor, model, fps)
     print("Analyze of the video done. Proceeding to create the video :")
+
     #Generates a video from the notes---------------------------------------------
     AudioSegment.converter = r"D:\Projet_Python\ffmpeg\bin\ffmpeg.exe"
+
     ListeNotes = GB_VideoGenerator.readJsonSongFile("FileOutput.json")
-    print("Creation of the soundtrack in progress")
-    GB_VideoGenerator.CreateSongT2(ListeNotes)
-    print("Creation of the visuals in progress")
-    GB_VideoGenerator.CreateVidOpenCv2(ListeNotes, fps=30)
-    print("Final editing started")
+    GB_VideoGenerator.CreateSong(ListeNotes)
+    GB_VideoGenerator.CreateVidOpenCv(ListeNotes, fps=30)
     GB_VideoGenerator.CompileSoundandAudio("project.mp4", "SongresultTest.wav")
 
 if __name__ == "__main__" :

@@ -9,7 +9,7 @@ def readJsonSongFile(filename) :
         data = json.load(fileSongJson)
         return data
 
-def CreateSongT2(dataSong) :
+def CreateSong(dataSong) :
 
     current_path = os.getcwd() + "\\"
     finalSoundTrack = AudioSegment.silent(duration=2000)
@@ -95,7 +95,7 @@ def WriteVideo(pathFolderImages, numberOfFrames, fps=30.0) :
     clip = ImageSequenceClip(image_files, fps=fps)
     clip.write_videofile('project.mp4', codec="libx264", remove_temp= True, fps=fps)
 
-def CreateVidOpenCv2(dataSong, fps=30.0):
+def CreateVidOpenCv(dataSong, fps=30.0):
 
     current_path = os.getcwd() + "\\"
     frameNum = 0
