@@ -31,7 +31,6 @@ def main() :
     parser.add_argument('--supptemp', type=bool, help="Option to delete the temp data stored to create the final video", default=True)
     parser.add_argument('--savenotes', type=bool, help="Option to save the notes images in the dataset folder", default=False)
     args = parser.parse_args()
-
     videoFilePath = args.videotab
     suppTemp = args.supptemp
     saveNotes = args.savenotes
