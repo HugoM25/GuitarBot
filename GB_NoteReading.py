@@ -11,7 +11,6 @@ def ExtractTabImagesFromVideo(PathToVideo) :
     cam = cv2.VideoCapture(PathToVideo)
     ListImagesTab = []
     currentframe = 0
-
     while (True):
         ret, frame = cam.read()
         if ret:
@@ -63,12 +62,18 @@ def CountFile(dir) :
 
     return  count
 
-def GetNoteImagesLobe(imageToLook,model,CursorPosX,dimensionImage,frameNum, fps, margeApresCurseur = 3, humanHelp = False) :
 
+def GetNoteImagesLobe(imageToLook,model,CursorPosX,dimensionImage,frameNum, fps, margeApresCurseur = 3, humanHelp = False, saveNotes=False) :
+
+    currentDir = os.getcwd()
     lignesPos = [13, 25, 37, 49, 61, 73]
     i = 0
     found = False
     noteListe = [0, 0, 0, 0]
+
+
+
+
 
     while i < len(lignesPos) and found == False:
 
@@ -84,12 +89,14 @@ def GetNoteImagesLobe(imageToLook,model,CursorPosX,dimensionImage,frameNum, fps,
             if humanHelp == True :
                 result = AskHumanForHelp(resultStats, imageToLook)
 
-        #print(resultStats)
-        #print('Note found is :' + result)
         if result != 'Data_nothing':
             chiffre = result[5:]
-            image.save("D:\Projet_Python\GuitarBot_KNN\DataTrainModel\Data_"+ str(chiffre) +"\image" + str(frameNum + 30000) +".jpg")
             noteListe = [i + 1, chiffre, frameNum * (1 / fps), frameNum]
+
+            nbNoteImg = (len(os.listdir("DataTrainModel\\Data_" + str(i)))) +1
+            if saveNotes :
+                image.save(currentDir + "\DataTrainModel\Data_"+ str(chiffre) + "\image" + str(nbNoteImg) + ".jpg" )
+
             found = True
         else:
             i += 1
@@ -128,11 +135,14 @@ def WriteNotesInFileJson(filename,notesList) :
     with open(filename,"w") as outFile :
        json.dump(data, outFile)
 
-def ReadNotesFromVideo(videoFilePath, colorCursor, errorRangeCursor, model, fps) :
+def ReadNotesFromVideo(videoFilePath, colorCursor, errorRangeCursor, model, fps, saveNotes=False) :
     finalNoteListe = []
     lastPositionCursor = -2
     listImages = ExtractTabImagesFromVideo(videoFilePath)
+
+
     for i in range(0, len(listImages)):
+
         #print("looking at frame" + str(i))
         im = listImages[i]
         positionCursor = CheckForCursorPos(im, colorCursor)
@@ -145,7 +155,7 @@ def ReadNotesFromVideo(videoFilePath, colorCursor, errorRangeCursor, model, fps)
         else:
             #print("Cursor found at pos : " + str(positionCursor))
             cv2.imwrite("Temp\\tab" + str(i) + ".jpg", listImages[i])
-            finalNoteListe.append(GetNoteImagesLobe(im, model, positionCursor, 11, i, fps, humanHelp=False))
+            finalNoteListe.append(GetNoteImagesLobe(im, model, positionCursor, 11, i, fps, humanHelp=False, saveNotes=saveNotes))
         lastPositionCursor = positionCursor
 
     WriteNotesInFileJson("FileOutput.json", finalNoteListe)
@@ -155,7 +165,6 @@ def ReadNotesFromVideo(videoFilePath, colorCursor, errorRangeCursor, model, fps)
 
 if __name__ == "__main__" :
     pass
-    #ReadNotesFromVideo()
 
 
 
