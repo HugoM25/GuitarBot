@@ -2,10 +2,10 @@
 
 # What is it ?
 Guitarbot is a command line tool to generate videos from tutorials from the youtube channel : [tab sheet music](https://www.youtube.com/c/TabSheetMusic)
-
+<img src="https://github.com/HugoM25/GuitarBot/blob/master/frame312.jpg"  />
 # How to use it ?
 
-<h2> Use </h2>
+<h2> Usage </h2>
 To use this program you can use a command like this :
 
 ```Shell
@@ -37,6 +37,3 @@ With each string folder having the same structure as the following:
 - ...
 - :sound: son18.wav
 - :movie_camera: vid18.mp4
-
-# How does it work ?
-
