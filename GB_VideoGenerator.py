@@ -9,8 +9,7 @@ def readJsonSongFile(filename) :
         data = json.load(fileSongJson)
         return data
 
-def CreateSong(dataSong) :
-
+def CreateSong(dataSong, folderImgSound) :
     current_path = os.getcwd() + "\\"
     finalSoundTrack = AudioSegment.silent(duration=2000)
 
@@ -19,8 +18,8 @@ def CreateSong(dataSong) :
         timeAjout = 0
         if finalSoundTrack.duration_seconds < float(note["time"]) :
             timeAjout = float(note["time"]) - finalSoundTrack.duration_seconds
-
-        audionote = AudioSegment.from_wav(current_path + "Notes720p\\Fret" + str(note["corde"]) + "\\son" + str(note["case"]) + ".wav")
+        print(note)
+        audionote = AudioSegment.from_wav(current_path + str(folderImgSound) + "\\Fret" + str(note["corde"]) + "\\son" + str(note["case"]) + ".wav")
 
         # Overlay addition might sound better :
         overlayNotesChannel = finalSoundTrack + AudioSegment.silent(duration=((timeAjout + audionote.duration_seconds)*1000))
@@ -62,26 +61,20 @@ def AddTabOverImage(image, tabPath) :
     newTabWidth = int(image.shape[1])
     newTabHeight = int(newTabWidth * (tab.shape[0]/tab.shape[1]))
     resizedTab = cv2.resize(tab, (newTabWidth, newTabHeight), interpolation=cv2.INTER_AREA)
-
     xOffset = 0
     yOffset = image.shape[0]-resizedTab.shape[0]
-
     image[yOffset:yOffset + resizedTab.shape[0], xOffset:xOffset + resizedTab.shape[1]] = resizedTab
-
     return image
 
 def WriteVideoOpenCv(pathFolderImages, numberofFrames) :
     img_array = []
     size = (1280,720)
     for i in range(0,numberofFrames) :
-        #print(pathFolderImages + "frame" + str(i) + ".jpg")
         img = cv2.imread(pathFolderImages + "frame" + str(i) + ".jpg")
         height, width, layers = img.shape
         size = (width, height)
         img_array.append(img)
 
-
-    #out = cv2.VideoWriter(filename='project.avi', fourcc=cv2.VideoWriter_fourcc(*'DIVX'), fps=30, frameSize=size)
     out = cv2.VideoWriter(filename='project.mp4', fourcc=cv2.VideoWriter_fourcc(*'mp4v'), fps=30, frameSize=size)
 
     for i in range(len(img_array)):
@@ -95,7 +88,7 @@ def WriteVideo(pathFolderImages, numberOfFrames, fps=30.0) :
     clip = ImageSequenceClip(image_files, fps=fps)
     clip.write_videofile('project.mp4', codec="libx264", remove_temp= True, fps=fps)
 
-def CreateVidOpenCv(dataSong, fps=30.0):
+def CreateVidOpenCv(dataSong, folderImgSound, fps=30.0):
 
     current_path = os.getcwd() + "\\"
     frameNum = 0
@@ -116,7 +109,7 @@ def CreateVidOpenCv(dataSong, fps=30.0):
                 cv2.imwrite(current_path + "Temp\\frame" + str(frameNum) + ".jpg", lastImageFill)
                 frameNum += 1
         #Add the frames of the note
-        pathNote = current_path + "Notes720p\\Fret" + str(dataSong["notes"][noteNum]['corde']) + "\\vid" + str(dataSong["notes"][noteNum]['case'])  + ".mp4"
+        pathNote = current_path + folderImgSound + "\\Fret" + str(dataSong["notes"][noteNum]['corde']) + "\\vid" + str(dataSong["notes"][noteNum]['case'])  + ".mp4"
 
         listImgNote = ExtractImagesFromVideo(pathNote)
         for img in listImgNote:

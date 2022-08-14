@@ -3,7 +3,6 @@ import os
 import numpy as np
 import math
 from PIL import Image
-from lobe import ImageModel
 import json
 
 #Extract frames and crop the images to get the tabs
@@ -64,16 +63,11 @@ def CountFile(dir) :
 
 
 def GetNoteImagesLobe(imageToLook,model,CursorPosX,dimensionImage,frameNum, fps, margeApresCurseur = 3, humanHelp = False, saveNotes=False) :
-
     currentDir = os.getcwd()
     lignesPos = [13, 25, 37, 49, 61, 73]
     i = 0
     found = False
     noteListe = [0, 0, 0, 0]
-
-
-
-
 
     while i < len(lignesPos) and found == False:
 
@@ -100,7 +94,6 @@ def GetNoteImagesLobe(imageToLook,model,CursorPosX,dimensionImage,frameNum, fps,
             found = True
         else:
             i += 1
-
     return noteListe
 
 def AskHumanForHelp(resultStats, imageNote) :
@@ -135,11 +128,11 @@ def WriteNotesInFileJson(filename,notesList) :
     with open(filename,"w") as outFile :
        json.dump(data, outFile)
 
+
 def ReadNotesFromVideo(videoFilePath, colorCursor, errorRangeCursor, model, fps, saveNotes=False) :
     finalNoteListe = []
     lastPositionCursor = -2
     listImages = ExtractTabImagesFromVideo(videoFilePath)
-
 
     for i in range(0, len(listImages)):
 
@@ -157,6 +150,7 @@ def ReadNotesFromVideo(videoFilePath, colorCursor, errorRangeCursor, model, fps,
             cv2.imwrite("Temp\\tab" + str(i) + ".jpg", listImages[i])
             finalNoteListe.append(GetNoteImagesLobe(im, model, positionCursor, 11, i, fps, humanHelp=False, saveNotes=saveNotes))
         lastPositionCursor = positionCursor
+
 
     WriteNotesInFileJson("FileOutput.json", finalNoteListe)
 
