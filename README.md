@@ -2,7 +2,7 @@
 
 # What is it ?
 Guitarbot is a command line tool to generate videos from tutorials from the youtube channel : [tab sheet music](https://www.youtube.com/c/TabSheetMusic)
-<img src="https://github.com/HugoM25/GuitarBot/blob/master/frame312.jpg"  />
+<img src="https://github.com/HugoM25/GuitarBot/blob/master/example_frame.jpg"  />
 # How to use it ?
 
 <h2> Usage </h2>
