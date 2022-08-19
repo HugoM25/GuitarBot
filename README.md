@@ -9,13 +9,15 @@ Guitarbot is a command line tool to generate videos from tutorials from the yout
 To use this program you can use a command like this :
 
 ```Shell
-python main.py --videotab your_video.mp4
+python main.py --videotab your_video.mp4 --videoplay VideosToUseFolder
 ```
 
 The available arguments are: 
 
-- `--videotab` : The path to the video tutorial
-- `--supptemp` : Contains the decision to delete/backup the temporary files used for the video (by default FALSE)
+- `--videotab` : The path to the video tutorial (only 360p videos are supported)  
+- `--videoplay` : Path of the folder with the notes and sounds to use to create the final video (check setup instruction to know the correct format of the folder) 
+- `--supptemp` : Contains the decision to delete/backup the temporary files used for the video (by default TRUE)
+- `--savenotes` : Contains the decision to save the notes images (used for data gathering to improve the ML model)  (by default FALSE)
 
 <h2> Setup </h2>
 You will then need to have a folder named `NoteRES` containing your audio and video recordings of each note arranged according to this layout: 
