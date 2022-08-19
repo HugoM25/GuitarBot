@@ -24,15 +24,31 @@ def ExtractTabImagesFromVideo(PathToVideo) :
 
     return ListImagesTab
 
-#Calcule la distance entre deux points
+def ExtractTabImagesFromJson(dataJson) :
+    notesListJson = dataJson["notes"]
+    video = cv2.VideoCapture(str(dataJson["infos"]["video_tutorial_path"]))
+
+    fps = video.get(cv2.CAP_PROP_FPS)
+    for notes in notesListJson :
+        frame_id = int(fps * float(notes["time"]))
+        video.set(cv2.CAP_PROP_POS_FRAMES, frame_id)
+        ret, frame = video.read()
+        if ret == True :
+            frame = frame[137:223, 0:639]
+            cv2.imwrite('Temp\\tab' + str(frame_id) + '.jpg', frame)
+
+    video.release()
+    cv2.destroyAllWindows()
+
+#Evaluate distance between two points
 def DistanceEuclidean(list1,list2):
     distance = 0
     for i in range(0,len(list1)) :
         distance += (list2[i]-list1[i])**2
     return math.sqrt(distance)
 
-#Cherche la position du curseur vert
-def CheckForCursorPos(imageArray, colorToLookFor) :
+#Look for the position of the green bar
+def CheckForCursorPos(imageArray, colorToLookFor, minDist=50) :
 
     numRows = np.shape(imageArray)[0]
     #Sum by collumns
@@ -48,7 +64,7 @@ def CheckForCursorPos(imageArray, colorToLookFor) :
             distanceMin = distanceAct
             iIndex = i
 
-    if (distanceMin > 50) :
+    if (distanceMin > minDist) :
         return -1
     else :
         return iIndex
@@ -73,27 +89,38 @@ def GetNoteImagesLobe(imageToLook,model,CursorPosX,dimensionImage,frameNum, fps,
 
         noteImg = imageToLook[lignesPos[i]:lignesPos[i] + dimensionImage,
                   CursorPosX + margeApresCurseur:CursorPosX + dimensionImage + margeApresCurseur]
+        #Check if image's empty
+        noteImgClean = noteImg < 65
+        for x in range(0,len(noteImgClean)) :
+            for y in range(0,len(noteImgClean[x])) :
+                if np.all(noteImgClean[x][y]) != True :
+                    noteImgClean[x][y] = [0,0,0]
+
+
+
+        percentageImgNb = noteImgClean.sum()/(noteImgClean.shape[0]*noteImgClean.shape[1])
+
+
         image = Image.fromarray(noteImg)
+        if percentageImgNb > 0.2 :
 
-        resultStats = model.predict(image)
+            resultStats = model.predict(image)
+            result = resultStats.prediction
+            if resultStats.labels[0][1] < 1.0 :
+                if humanHelp == True :
+                    result = AskHumanForHelp(resultStats, imageToLook)
 
-        result = resultStats.prediction
+            if result != 'Data_nothing':
+                chiffre = result[5:]
+                noteListe = [i + 1, chiffre, frameNum * (1 / fps), frameNum]
 
-        if resultStats.labels[0][1] < 1.0 :
-            if humanHelp == True :
-                result = AskHumanForHelp(resultStats, imageToLook)
+                if saveNotes :
+                    nbNoteImg = (len(os.listdir("DataTrainModel\\Data_" + str(chiffre)))) + 1
+                    image.save(currentDir + "\DataTrainModel\Data_"+ str(chiffre) + "\image" + str(nbNoteImg) + ".jpg" )
 
-        if result != 'Data_nothing':
-            chiffre = result[5:]
-            noteListe = [i + 1, chiffre, frameNum * (1 / fps), frameNum]
+                found = True
 
-            nbNoteImg = (len(os.listdir("DataTrainModel\\Data_" + str(i)))) +1
-            if saveNotes :
-                image.save(currentDir + "\DataTrainModel\Data_"+ str(chiffre) + "\image" + str(nbNoteImg) + ".jpg" )
-
-            found = True
-        else:
-            i += 1
+        i += 1
     return noteListe
 
 def AskHumanForHelp(resultStats, imageNote) :
@@ -104,13 +131,7 @@ def AskHumanForHelp(resultStats, imageNote) :
     return "Data_" + str(input("chiffre vu :"))
 
 
-def WriteNotesInFile(finalNoteListe) :
-    with open("MySong.txt","w") as f :
-        for i in finalNoteListe :
-            if i[0] != 0 :
-                f.write(str(i[0]) +"," + str(i[1]) +"," + str(i[2])[0:8]+ "," + str(i[3]) +"\n")
-
-def WriteNotesInFileJson(filename,notesList) :
+def WriteNotesInFileJson(filename,notesList,tutovid, name="songName") :
     listNotes = []
     for note in notesList :
         if note[0] != 0 :
@@ -118,11 +139,15 @@ def WriteNotesInFileJson(filename,notesList) :
                 "corde": str(note[0]),
                 "case": str(note[1]),
                 "time": str(note[2])[0:8],
-                "tab": "tab" + str(note[3]) + ".jpg"
             }
             listNotes.append(dictNote)
+    infosList = {
+        "name" : "songName",
+        "video_tutorial_path" : "",
+        "video_tutorial_fps" : "23.98"
+    }
     data = {
-        "infos": "songName",
+        "infos": infosList,
         "notes": listNotes
     }
     with open(filename,"w") as outFile :
@@ -152,13 +177,8 @@ def ReadNotesFromVideo(videoFilePath, colorCursor, errorRangeCursor, model, fps,
         lastPositionCursor = positionCursor
 
 
-    WriteNotesInFileJson("FileOutput.json", finalNoteListe)
+    WriteNotesInFileJson("FileOutput.json", finalNoteListe,videoFilePath)
 
-
-
-
-if __name__ == "__main__" :
-    pass
 
 
 

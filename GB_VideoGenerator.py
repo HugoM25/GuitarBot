@@ -18,7 +18,7 @@ def CreateSong(dataSong, folderImgSound) :
         timeAjout = 0
         if finalSoundTrack.duration_seconds < float(note["time"]) :
             timeAjout = float(note["time"]) - finalSoundTrack.duration_seconds
-        print(note)
+
         audionote = AudioSegment.from_wav(current_path + str(folderImgSound) + "\\Fret" + str(note["corde"]) + "\\son" + str(note["case"]) + ".wav")
 
         # Overlay addition might sound better :
@@ -27,7 +27,7 @@ def CreateSong(dataSong, folderImgSound) :
 
         finalSoundTrack = overlayNotesChannel
 
-    #Tronque au temps de la dernière note
+    #Cut after the last note's sound ends
     tempsFinal = float (dataSong["notes"][-1]["time"]) + audionote.duration_seconds
     finalSoundTrack = finalSoundTrack[0:tempsFinal*1000]
 
@@ -56,8 +56,11 @@ def BlankImage(width = 1920, height = 1080, color = (0,0,0)) :
     return img
 
 def AddTabOverImage(image, tabPath) :
-    #Resize the image
+
+
     tab = cv2.imread(tabPath)
+
+    #Resize the image
     newTabWidth = int(image.shape[1])
     newTabHeight = int(newTabWidth * (tab.shape[0]/tab.shape[1]))
     resizedTab = cv2.resize(tab, (newTabWidth, newTabHeight), interpolation=cv2.INTER_AREA)
@@ -94,7 +97,8 @@ def CreateVidOpenCv(dataSong, folderImgSound, fps=30.0):
     frameNum = 0
     lastImageFill = BlankImage(1280,720)
 
-    #Comble le début de la vidéo avec des frames par défauts
+
+    #Add empty frames to fill the start of the video (usually 2s of blank)
     for i in range(0, int(fps * float(dataSong['notes'][0]['time']))):
         cv2.imwrite(current_path + "Temp\\frame" + str(frameNum) + ".jpg", lastImageFill)
         frameNum += 1
@@ -113,7 +117,8 @@ def CreateVidOpenCv(dataSong, folderImgSound, fps=30.0):
 
         listImgNote = ExtractImagesFromVideo(pathNote)
         for img in listImgNote:
-            img = AddTabOverImage(img, current_path + "Temp\\" + str(dataSong["notes"][noteNum]['tab']))
+            num_frame = int(float(dataSong["notes"][noteNum]['time'])*float(dataSong["infos"]["video_tutorial_fps"]))
+            img = AddTabOverImage(img, current_path + "Temp\\" + "tab" + str(num_frame) + ".jpg")
             #if there is too much frames then add just enough to reach the notes
             if noteNum + 1 < len(dataSong['notes']) and frameNum < int(fps* float(dataSong['notes'][noteNum+1]['time'])) :
                 cv2.imwrite(current_path + "Temp\\frame" + str(frameNum) + ".jpg", img)
@@ -136,17 +141,4 @@ def CompileSoundandAudio(pathFileVideo, pathFileAudio) :
     finalVid = finalVid.set_audio(new_audioClip)
     finalVid.write_videofile("finalVideo.mp4", codec='libx264', audio_codec="aac")
 
-
-
-def main(formatVid) :
-    AudioSegment.converter = r"D:\Projet_Python\ffmpeg\bin\ffmpeg.exe"
-    #Read notes from the generated file
-    #ListeNotes = readJsonSongFile("FileOutput.json")
-    #print(ListeNotes)
-    #CreateSongT2(ListeNotes)
-    #CreateVidOpenCv2(ListeNotes, fps=30)
-    #CompileSoundandAudio("project.mp4", "SongresultTest.wav")
-
-if __name__ == "__main__" :
-    main((1280,720))
 
