@@ -13,8 +13,7 @@ def main() :
     currentDir = os.getcwd()
     errorRangeCursor = 6
     ColorCursor = (150, 235, 152)
-    model = ImageModel.load(currentDir + "\\NoteClassifierV2\\NoteClassifierV4 ONNX")
-
+    model = ImageModel.load(currentDir + "\\NoteClassifierV4")
 
     # Parse the arguments
     parser = argparse.ArgumentParser(description='Informations')
