@@ -141,9 +141,10 @@ def WriteNotesInFileJson(filename,notesList,tutovid, name="songName") :
                 "time": str(note[2])[0:8],
             }
             listNotes.append(dictNote)
+
     infosList = {
-        "name" : "songName",
-        "video_tutorial_path" : "",
+        "name" : name,
+        "video_tutorial_path" : tutovid,
         "video_tutorial_fps" : "23.98"
     }
     data = {
@@ -154,11 +155,12 @@ def WriteNotesInFileJson(filename,notesList,tutovid, name="songName") :
        json.dump(data, outFile)
 
 
-def ReadNotesFromVideo(videoFilePath, colorCursor, errorRangeCursor, model, fps, saveNotes=False) :
+def ReadNotesFromVideo(videoFilePath, colorCursor, errorRangeCursor, model, saveNotes=False) :
+    video = cv2.VideoCapture(videoFilePath)
+    fps = video.get(cv2.CAP_PROP_FPS)
     finalNoteListe = []
     lastPositionCursor = -2
     listImages = ExtractTabImagesFromVideo(videoFilePath)
-
     for i in range(0, len(listImages)):
 
         #print("looking at frame" + str(i))
@@ -177,7 +179,7 @@ def ReadNotesFromVideo(videoFilePath, colorCursor, errorRangeCursor, model, fps,
         lastPositionCursor = positionCursor
 
 
-    WriteNotesInFileJson("FileOutput.json", finalNoteListe,videoFilePath)
+    WriteNotesInFileJson("FileOutput.json", finalNoteListe,videoFilePath,videoFilePath.split()[-1][:-4])
 
 
 

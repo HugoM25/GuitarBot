@@ -56,8 +56,6 @@ def BlankImage(width = 1920, height = 1080, color = (0,0,0)) :
     return img
 
 def AddTabOverImage(image, tabPath) :
-
-
     tab = cv2.imread(tabPath)
 
     #Resize the image
@@ -129,8 +127,6 @@ def CreateVidOpenCv(dataSong, folderImgSound, fps=30.0):
                 lastImageFill = img
                 frameNum += 1
     WriteVideo(current_path + "Temp\\", frameNum, fps)
-
-
 
 def CompileSoundandAudio(pathFileVideo, pathFileAudio) :
     finalVid =  VideoFileClip(pathFileVideo)

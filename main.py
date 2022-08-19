@@ -1,7 +1,5 @@
 #Import Some libraries
 from lobe import ImageModel
-from pydub import AudioSegment
-import cv2
 import os
 import glob
 import argparse
@@ -15,10 +13,8 @@ def main() :
     currentDir = os.getcwd()
     errorRangeCursor = 6
     ColorCursor = (150, 235, 152)
-    videoFilePath = currentDir + "\\Videos\\" + "polish_cow.mp4"
     model = ImageModel.load(currentDir + "\\NoteClassifierV2\\NoteClassifierV4 ONNX")
-    video = cv2.VideoCapture(videoFilePath)
-    fps = video.get(cv2.CAP_PROP_FPS)
+
 
     # Parse the arguments
     parser = argparse.ArgumentParser(description='Informations')
@@ -39,7 +35,7 @@ def main() :
 
     start_time = time.time()
     if notesJson == "nothing" :
-        GB_NoteReading.ReadNotesFromVideo(videoFilePath,ColorCursor, errorRangeCursor, model, fps,saveNotes)
+        GB_NoteReading.ReadNotesFromVideo(videoFilePath,ColorCursor, errorRangeCursor, model,saveNotes)
         dataSong = GB_VideoGenerator.readJsonSongFile("FileOutput.json")
     else :
         dataSong = GB_VideoGenerator.readJsonSongFile(notesJson)
