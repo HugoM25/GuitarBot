@@ -5,7 +5,10 @@ Guitarbot is a command line tool to generate videos from tutorials from the yout
 <img src="https://github.com/HugoM25/GuitarBot/blob/master/example_frame.png"  />
 
 <h2> Examples </h2> 
+
 Videos with tabs displayed : https://youtu.be/8GiqTDT1wqc
+
+Videos with edited background : https://youtu.be/g3jxPjvE8ag
 
 # How to use it ?
 
